@@ -3,6 +3,28 @@ import {Router} from "express";
 
 const questionRouter = Router();
 
+    /**
+     * @swagger
+     * /questions:
+     *   get:
+     *     summary: Get all questions
+     *     tags: [Questions]
+     *     responses:
+     *       200:
+     *         description: List of all questions
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 $ref: '#/components/schemas/Question'
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     */
     questionRouter.get("/", async (req, res) => {
         try {
           const questions = await connectionPool.query("SELECT * FROM questions");
@@ -12,6 +34,39 @@ const questionRouter = Router();
         }
       });
       
+    /**
+     * @swagger
+     * /questions/search:
+     *   get:
+     *     summary: Search questions by title or category
+     *     tags: [Questions]
+     *     parameters:
+     *       - in: query
+     *         name: title
+     *         schema:
+     *           type: string
+     *         description: Search term for question title (case-insensitive)
+     *       - in: query
+     *         name: category
+     *         schema:
+     *           type: string
+     *         description: Search term for category (case-insensitive)
+     *     responses:
+     *       200:
+     *         description: List of matching questions
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 $ref: '#/components/schemas/Question'
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     */
     questionRouter.get("/search", async (req, res) => {
         try {
             const { title, category } = req.query;
@@ -41,6 +96,39 @@ const questionRouter = Router();
         }
       });
       
+    /**
+     * @swagger
+     * /questions/{questionId}:
+     *   get:
+     *     summary: Get a question by ID
+     *     tags: [Questions]
+     *     parameters:
+     *       - in: path
+     *         name: questionId
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: Question ID
+     *     responses:
+     *       200:
+     *         description: Question details
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Question'
+     *       404:
+     *         description: Question not found
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     */
     questionRouter.get("/:questionId", async (req, res) => {
         try {
           const { questionId } = req.params;
@@ -54,6 +142,50 @@ const questionRouter = Router();
         }
       });  
 
+    /**
+     * @swagger
+     * /questions:
+     *   post:
+     *     summary: Create a new question
+     *     tags: [Questions]
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             required:
+     *               - title
+     *               - description
+     *               - category
+     *             properties:
+     *               title:
+     *                 type: string
+     *                 example: "What is Express.js?"
+     *               description:
+     *                 type: string
+     *                 example: "I want to learn about Express.js framework"
+     *               category:
+     *                 type: string
+     *                 example: "programming"
+     *     responses:
+     *       201:
+     *         description: Question created successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Question created successfully."
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     */
     questionRouter.post("/", async (req, res) => {
         try{
             const { title,description,category } = req.body;
@@ -64,6 +196,60 @@ const questionRouter = Router();
         }
       });
     
+    /**
+     * @swagger
+     * /questions/{questionId}:
+     *   put:
+     *     summary: Update a question
+     *     tags: [Questions]
+     *     parameters:
+     *       - in: path
+     *         name: questionId
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: Question ID
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             required:
+     *               - title
+     *               - description
+     *               - category
+     *             properties:
+     *               title:
+     *                 type: string
+     *               description:
+     *                 type: string
+     *               category:
+     *                 type: string
+     *     responses:
+     *       200:
+     *         description: Question updated successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Question updated successfully."
+     *       404:
+     *         description: Question not found
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     */
     questionRouter.put("/:questionId", async (req, res) => {
         try{
             const { questionId } = req.params;
@@ -81,6 +267,37 @@ const questionRouter = Router();
         }
       });
 
+    /**
+     * @swagger
+     * /questions/{questionId}:
+     *   delete:
+     *     summary: Delete a question
+     *     tags: [Questions]
+     *     parameters:
+     *       - in: path
+     *         name: questionId
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: Question ID
+     *     responses:
+     *       200:
+     *         description: Question deleted successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Question deleted successfully."
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     */
     questionRouter.delete("/:questionId", async (req, res) => {
         try{
             const { questionId } = req.params;
@@ -91,6 +308,67 @@ const questionRouter = Router();
         }
       });
 
+    /**
+     * @swagger
+     * /questions/{questionId}/answers:
+     *   post:
+     *     summary: Create an answer for a question
+     *     tags: [Questions]
+     *     parameters:
+     *       - in: path
+     *         name: questionId
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: Question ID
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             required:
+     *               - answer
+     *             properties:
+     *               answer:
+     *                 type: string
+     *                 maxLength: 300
+     *                 example: "Express.js is a web application framework for Node.js"
+     *               content:
+     *                 type: string
+     *                 maxLength: 300
+     *                 description: Alternative to 'answer' field
+     *     responses:
+     *       201:
+     *         description: Answer created successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 data:
+     *                   type: array
+     *                   items:
+     *                     $ref: '#/components/schemas/Answer'
+     *       400:
+     *         description: Invalid request data
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       404:
+     *         description: Question not found
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     */
     questionRouter.post("/:questionId/answers", async (req, res) => {
         try {
             const { questionId } = req.params;
@@ -123,6 +401,35 @@ const questionRouter = Router();
         }
     });
 
+    /**
+     * @swagger
+     * /questions/{questionId}/answers:
+     *   get:
+     *     summary: Get all answers for a question
+     *     tags: [Questions]
+     *     parameters:
+     *       - in: path
+     *         name: questionId
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: Question ID
+     *     responses:
+     *       200:
+     *         description: List of answers for the question
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 $ref: '#/components/schemas/Answer'
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     */
     questionRouter.get("/:questionId/answers", async (req,res) =>{
         try{
             const { questionId } = req.params;
@@ -133,6 +440,55 @@ const questionRouter = Router();
         }
     });
     
+    /**
+     * @swagger
+     * /questions/{questionId}/answers/{answerId}:
+     *   delete:
+     *     summary: Delete an answer
+     *     tags: [Questions]
+     *     parameters:
+     *       - in: path
+     *         name: questionId
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: Question ID
+     *       - in: path
+     *         name: answerId
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: Answer ID
+     *     responses:
+     *       200:
+     *         description: Answer deleted successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Answer deleted successfully."
+     *       400:
+     *         description: Invalid questionId or answerId
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       404:
+     *         description: Question or answer not found
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     */
     questionRouter.delete("/:questionId/answers/:answerId", async (req, res) => {
         try {
             const { questionId, answerId } = req.params;
@@ -167,6 +523,55 @@ const questionRouter = Router();
         }
     });
 
+    /**
+     * @swagger
+     * /questions/{questionId}/vote:
+     *   post:
+     *     summary: Vote on a question
+     *     tags: [Questions]
+     *     parameters:
+     *       - in: path
+     *         name: questionId
+     *         required: true
+     *         schema:
+     *           type: integer
+     *         description: Question ID
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             $ref: '#/components/schemas/Vote'
+     *     responses:
+     *       200:
+     *         description: Vote recorded successfully
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                   example: "Vote on the question has been recorded successfully."
+     *       400:
+     *         description: Invalid vote value or questionId
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       404:
+     *         description: Question not found
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     *       500:
+     *         description: Server error
+     *         content:
+     *           application/json:
+     *             schema:
+     *               $ref: '#/components/schemas/Error'
+     */
     questionRouter.post("/:questionId/vote", async (req, res) => {
     try {
         const { questionId } = req.params;

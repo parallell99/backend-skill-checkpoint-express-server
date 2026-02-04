@@ -4,7 +4,55 @@ import connectionPool from "../utils/db.mjs";
 
 const answerRouter = Router();
 
-
+/**
+ * @swagger
+ * /answers/{answerId}/vote:
+ *   post:
+ *     summary: Vote on an answer
+ *     tags: [Answers]
+ *     parameters:
+ *       - in: path
+ *         name: answerId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Answer ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Vote'
+ *     responses:
+ *       200:
+ *         description: Vote recorded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Vote on the answer has been recorded successfully."
+ *       400:
+ *         description: Invalid vote value or answerId
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Answer not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 answerRouter.post("/:answerId/vote", async (req, res) => {
     try {
         const { answerId } = req.params;
