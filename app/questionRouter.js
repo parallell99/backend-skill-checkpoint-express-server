@@ -188,8 +188,21 @@ const questionRouter = Router();
      */
     questionRouter.post("/", async (req, res) => {
         try{
-            const { title,description,category } = req.body;
-            await connectionPool.query(`INSERT INTO questions (title,description,category) VALUES ($1,$2,$3) RETURNING *`, [title,description,category]);
+            const questionData = {...req.body,
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+                published_at: new Date().toISOString(),
+            };
+            await connectionPool.query(`INSERT INTO questions (title,description,category,created_at,updated_at,published_at) 
+                VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+                [
+                    questionData.title,
+                    questionData.description,
+                    questionData.category,
+                    questionData.created_at,
+                    questionData.updated_at,
+                    questionData.published_at
+                ]);
             return res.status(201).json({ message: "Question created successfully."});
         } catch (error) {
             return res.status(500).json({message: "Invalid request data."});
@@ -254,9 +267,10 @@ const questionRouter = Router();
         try{
             const { questionId } = req.params;
             const { title, description, category } = req.body;
+            const updated_at = new Date().toISOString();
             const result = await connectionPool.query(
-                `UPDATE questions SET title = $1, description = $2, category = $3 WHERE id = $4 RETURNING *`,
-                [title, description, category, questionId]
+                `UPDATE questions SET title = $1, description = $2, category = $3, updated_at = $4 WHERE id = $5 RETURNING *`,
+                [title, description, category, updated_at, questionId]
             );
             if (!result.rows.length) {
                 return res.status(404).json({ message: "Question not found." });
@@ -375,14 +389,13 @@ const questionRouter = Router();
             const content = req.body.answer ?? req.body.content;
             
             if (!content) {
-                return res.status(400).json({"message": "Invalid request data."});
+                return res.status(400).json({message: "Invalid request data."});
             }
             
             if (content.length >= 300) {
                 return res.status(400).json({ message: "Answer must be at most 300 characters long." });
             }
 
-           
             const questionResult = await connectionPool.query(
                 "SELECT id FROM questions WHERE id = $1",
                 [questionId]
@@ -397,6 +410,8 @@ const questionRouter = Router();
             );
             return res.status(201).json({ data: insertResult.rows });
         } catch (error) {
+            console.error("Error creating answer:", error.message);
+            console.error("Full error:", error);
             return res.status(500).json({ message: "Unable to create answer." });
         }
     });

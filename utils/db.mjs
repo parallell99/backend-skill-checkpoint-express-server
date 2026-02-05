@@ -4,7 +4,7 @@ const { Pool } = pg.default;
 
 const connectionPool = new Pool({
   connectionString:
-    "postgresql://postgres:Ajickalo@localhost:5432/backend-checkpoint",
+    "postgresql://postgres:Ajickalo@localhost:5432/backend-checkpoint-2",
 });
 
 export default connectionPool;
